@@ -1,3 +1,17 @@
+<?php
+session_start();
+require('library.php');
+
+//セッションの情報があるかないかを判定する
+//セッションがない場合ログインしていないためログイン画面に飛ばす
+if(isset($_SESSION['id'])&&isset($_SESSION['name'])){
+    $name=$_SESSION['name'];
+}else{
+    header('Location:login.php');
+}
+
+?>
+
 <!DOCTYPE html>
 <html lang="ja">
 
@@ -19,7 +33,7 @@
         <div style="text-align: right"><a href="logout.php">ログアウト</a></div>
         <form action="" method="post">
             <dl>
-                <dt>○○さん、メッセージをどうぞ</dt>
+                <dt><?php echo $name;?>さん、メッセージをどうぞ</dt>
                 <dd>
                     <textarea name="message" cols="50" rows="5"></textarea>
                 </dd>
