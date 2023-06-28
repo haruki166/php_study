@@ -15,11 +15,10 @@ if(isset($_SESSION['form'])){
 
 //登録するボタンを押した時のSQLへの登録の処理
 if($_SERVER['REQUEST_METHOD']==='POST'){
+	
 	//サーバーに接続
-	$db = new mysqli('localhost','root','root','min_bbs');
-	if(!$db){
-		die($db->error);
-	}
+	$db = dbconnect();
+	
 	//SQL文
 	$stmt = $db->prepare('insert into members (name,email,password,picture) values (?,?,?,?)');
 	if(!$stmt){
