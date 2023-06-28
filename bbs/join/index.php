@@ -1,4 +1,6 @@
 <?php
+session_start();
+
 $form=[
     'name'=>'',
     'email'=>'',
@@ -11,7 +13,7 @@ function h($value){
     return htmlspecialchars($value,ENT_QUOTES);
 }
 
-//フォームの内容をチェック
+//フォームの内容をチェック $fromに入力した値をぶち込む
 if($_SERVER['REQUEST_METHOD']==='POST'){
 
     $form['name']=filter_input(INPUT_POST,'name',FILTER_SANITIZE_FULL_SPECIAL_CHARS);
@@ -29,6 +31,22 @@ if($_SERVER['REQUEST_METHOD']==='POST'){
         $error['password']='blank';
     }else if(strlen($form['password']) < 4){
         $error['password']='length';
+    }
+
+    //画像のチェック
+    $image = $_FILES['image'];
+    if($image['name'] !== '' && $image['error'] === 0){
+        $type = mime_content_type($image['tmp_name']);
+        if($type !== 'image/png' && $type !== 'image/jpeg'){
+            $error['image']='type';
+        }
+    }
+
+    //エラーがない時の処理
+    if(empty($error)){
+        $_SESSION['form'] = $form;
+        header('Location:check.php');
+        exit();
     }
 }
 
@@ -82,8 +100,10 @@ if($_SERVER['REQUEST_METHOD']==='POST'){
                 <dt>写真など</dt>
                 <dd>
                     <input type="file" name="image" size="35" value=""/>
+                    <?php if(isset($error['image'])&& $error['image']==='type'):?>
                     <p class="error">* 写真などは「.png」または「.jpg」の画像を指定してください</p>
                     <p class="error">* 恐れ入りますが、画像を改めて指定してください</p>
+                    <?php endif;?>
                 </dd>
             </dl>
             <div><input type="submit" value="入力内容を確認する"/></div>
