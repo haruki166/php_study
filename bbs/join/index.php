@@ -2,14 +2,18 @@
 session_start();
 require('../library.php');
 
-$form=[
-    'name'=>'',
-    'email'=>'',
-    'password'=>''
-];
+//修正ボタンから戻ってきた時の判定
+if(isset($_GET['action']) && $_GET['action']==='rewrite' && isset($_SESSION['form'])){
+    $form = $_SESSION['form'];
+}else{
+    $form=[
+        'name'=>'',
+        'email'=>'',
+        'password'=>''
+    ];
+}
+
 $error=[];
-
-
 
 //フォームの内容をチェック $fromに入力した値をぶち込む
 if($_SERVER['REQUEST_METHOD']==='POST'){
