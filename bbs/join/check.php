@@ -1,6 +1,44 @@
 <?php 
 session_start();
-var_dump($_SESSION['form']);
+require('../library.php');
+
+
+//直接アクセスした時の処理
+//$_SESSIONに値がないためその時はその時はindex.phpに戻す
+if(isset($_SESSION['form'])){
+	$form =$_SESSION['form'];
+}else{
+	header('Location:index.php');
+	exit();
+}
+
+
+//登録するボタンを押した時のSQLへの登録の処理
+if($_SERVER['REQUEST_METHOD']==='POST'){
+	//サーバーに接続
+	$db = new mysqli('localhost','root','root','min_bbs');
+	if(!$db){
+		die($db->error);
+	}
+	//SQL文
+	$stmt = $db->prepare('insert into members (name,email,password,picture) values (?,?,?,?)');
+	if(!$stmt){
+		die($db->error);
+	}
+
+	//passwordを暗号化
+	$password = password_hash($form['password'],PASSWORD_DEFAULT);
+	$stmt->bind_param('ssss',$form['name'],$form['email'],$password,$form['image']);
+	$success = $stmt->execute();
+	if(!$success){
+		die($db->error);
+	}
+
+	//SEESION情報を消す
+	unset($_SESSION['form']);
+	header('Location:thanks.php');
+}
+
 ?>
 
 <!DOCTYPE html>
@@ -26,16 +64,16 @@ var_dump($_SESSION['form']);
 			<form action="" method="post">
 				<dl>
 					<dt>ニックネーム</dt>
-					<dd>○○</dd>
+					<dd><?php echo h($form['name']);?></dd>
 					<dt>メールアドレス</dt>
-					<dd>info@example.com</dd>
+					<dd><?php echo h($form['email']);?></dd>
 					<dt>パスワード</dt>
 					<dd>
 						【表示されません】
 					</dd>
 					<dt>写真など</dt>
 					<dd>
-							<img src="../member_picture/" width="100" alt="" />
+							<img src="../member_picture/<?php echo h($form['image']);?>" width="100" alt="" />
 					</dd>
 				</dl>
 				<div><a href="index.php?action=rewrite">&laquo;&nbsp;書き直す</a> | <input type="submit" value="登録する" /></div>
